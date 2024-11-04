@@ -40,11 +40,6 @@ class HomeScreenContent extends StatelessWidget {
     return Scaffold(
       appBar: CustomAppBar(
         user: user,
-        onBackPressed: () {
-          if (navigationProvider.currentIndex != 0) {
-            navigationProvider.setIndex(0);
-          }
-        },
         onLogout: () {
           context.read<AuthProvider>().logout();
           Navigator.pushReplacementNamed(context, '/login');

@@ -2,7 +2,6 @@ package living.word.livingword.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -13,11 +12,10 @@ public class Newsletter {
     private Long id;
 
     private String title;
-    private String content;
-    private String imageUrl;
+    private String newsletterUrl;
     private LocalDateTime publicationDate;
 
     @ManyToOne
-    @JoinColumn(name = "uploaded_by_id", nullable = false)
+    @JoinColumn(name = "uploaded_by_id")
     private User uploadedBy;
 }

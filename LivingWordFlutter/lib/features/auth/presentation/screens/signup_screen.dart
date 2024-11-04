@@ -60,8 +60,8 @@ class _SignupScreenState extends State<SignupScreen> {
                             style: const TextStyle(color: Colors.red),
                           ),
                         ),
-                      _buildTextField(_nameController, 'First Name'),
-                      _buildTextField(_lastnameController, 'Last Name'),
+                      _buildTextField(_nameController, 'First Name', icon: Icons.person),
+                      _buildTextField(_lastnameController, 'Last Name', icon: Icons.person_outline),
                       _buildTextField(
                         _emailController,
                         'Email',
@@ -119,10 +119,13 @@ class _SignupScreenState extends State<SignupScreen> {
         obscureText: obscureText,
         decoration: InputDecoration(
           labelText: label,
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-          prefixIcon: icon != null ? Icon(icon) : null,
+          labelStyle: TextStyle(color: Colors.grey.shade600),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+          prefixIcon: icon != null ? Icon(icon, color: Colors.blue) : null,
           filled: true,
-          fillColor: Colors.grey.shade200,
+          fillColor: Colors.blue.shade50,
         ),
         validator: validator ?? (value) => value?.isEmpty ?? true ? 'This field is required' : null,
       ),
@@ -145,11 +148,13 @@ class _SignupScreenState extends State<SignupScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label),
+          Text(label, style: TextStyle(color: Colors.grey.shade700)),
           DropdownButton<String>(
             value: selectedValue,
             items: items.map((item) => DropdownMenuItem(value: item, child: Text(item))).toList(),
             onChanged: onChanged,
+            dropdownColor: Colors.white,
+            iconEnabledColor: Colors.blue,
           ),
         ],
       ),
@@ -162,13 +167,15 @@ class _SignupScreenState extends State<SignupScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Gender', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          const Text('Gender', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.grey)),
           const SizedBox(height: 8),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               ChoiceChip(
-                label: const Icon(Icons.male),
+                label: const Icon(Icons.male, color: Colors.white),
+                backgroundColor: Colors.blue.shade100,
+                selectedColor: Colors.blue,
                 selected: _selectedGender == 'Male',
                 onSelected: (selected) {
                   setState(() => _selectedGender = 'Male');
@@ -176,7 +183,9 @@ class _SignupScreenState extends State<SignupScreen> {
               ),
               const SizedBox(width: 16),
               ChoiceChip(
-                label: const Icon(Icons.female),
+                label: const Icon(Icons.female, color: Colors.white),
+                backgroundColor: Colors.blue.shade100,
+                selectedColor: Colors.blue,
                 selected: _selectedGender == 'Female',
                 onSelected: (selected) {
                   setState(() => _selectedGender = 'Female');
@@ -197,9 +206,10 @@ class _SignupScreenState extends State<SignupScreen> {
         child: InputDecorator(
           decoration: InputDecoration(
             labelText: 'Date of Birth',
+            labelStyle: TextStyle(color: Colors.grey.shade600),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
             filled: true,
-            fillColor: Colors.grey.shade200,
+            fillColor: Colors.blue.shade50,
           ),
           child: Text(
             DateFormat('yyyy-MM-dd').format(_selectedDate),

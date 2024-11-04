@@ -6,8 +6,6 @@ import living.word.livingword.entity.User;
 import living.word.livingword.exception.AlreadyPrayedException;
 import living.word.livingword.exception.PrayerRequestNotFoundException;
 import living.word.livingword.model.dto.PrayerRequestDTO;
-import living.word.livingword.model.dto.PrayerSupportDTO;
-import living.word.livingword.repository.AppUserRepository;
 import living.word.livingword.repository.PrayerRequestRepository;
 import living.word.livingword.repository.PrayerSupportRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,8 +14,10 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+
+import jakarta.transaction.Transactional;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -105,7 +105,7 @@ public class PrayerRequestService {
         return supports.stream().map(support -> support.getUser().getName()).collect(Collectors.toList());
     }
 
-        // Delete a prayer request by your ID
+    @Transactional    // Delete a prayer request by your ID
     public void deletePrayerRequest(Long id) {
         PrayerRequest prayerRequest = prayerRequestRepository.findById(id)
                 .orElseThrow(() -> new PrayerRequestNotFoundException("Prayer request with id " + id + " not found"));

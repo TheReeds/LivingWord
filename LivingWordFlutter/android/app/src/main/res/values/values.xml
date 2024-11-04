@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Firebase options -->
+    <string name="default_web_client_id" translatable="false">YOUR_CLIENT_ID</string>
+    <!-- Otros valores necesarios para Firebase, si aplican -->
+</resources>

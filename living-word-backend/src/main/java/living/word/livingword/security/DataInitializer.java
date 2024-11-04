@@ -73,9 +73,14 @@ public class DataInitializer implements CommandLineRunner {
         Permission writeSermon = createPermissionIfNotExists("SERMON_WRITE");
         Permission editSermon = createPermissionIfNotExists("SERMON_EDIT");
         Permission deleteSermon = createPermissionIfNotExists("SERMON_DELETE");
+        // SermonNote Permissions
+        Permission readSermonNote = createPermissionIfNotExists("SERMONNOTE_READ");
+        Permission writeSermonNote = createPermissionIfNotExists("SERMONNOTE_WRITE");
+        Permission editSermonNote = createPermissionIfNotExists("SERMONNOTE_EDIT");
+        Permission deleteSermonNote = createPermissionIfNotExists("SERMONNOTE_DELETE");
 
         // Crear rol USER con permisos de lectura
-        createRoleIfNotExists("USER", 1, Set.of("NEWSLETTER_READ", "VIDEO_READ", "PRAYER_READ", "ATTENDANCE_READ" ,"MINISTRY_READ", "CONTACT_READ", "SERMON_READ", "EVENT_READ"));
+        createRoleIfNotExists("USER", 1, Set.of("NEWSLETTER_READ", "VIDEO_READ", "PRAYER_READ", "ATTENDANCE_READ" ,"MINISTRY_READ", "CONTACT_READ", "SERMON_READ", "EVENT_READ", "SERMONNOTE_READ"));
 
         // Crear rol ADMINISTRATOR con todos los permisos
         createRoleIfNotExists("ADMINISTRATOR", 4, Set.of(

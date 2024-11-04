@@ -6,11 +6,17 @@ import living.word.livingword.entity.VideoCreateRequest;
 import living.word.livingword.model.dto.VideoDto;
 import living.word.livingword.repository.VideoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.threeten.bp.LocalDateTime;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import java.util.List;
+
 
 @Service
 public class VideoService {
@@ -36,6 +42,7 @@ public class VideoService {
         video.setTitle(videoRequest.getTitle());
         video.setYoutubeUrl(videoRequest.getYoutubeUrl());
         video.setUploadedBy(currentUser); // Relacionar el usuario con el video
+        video.setUploadedDate(LocalDateTime.now());
 
         Video savedVideo = videoRepository.save(video);
 
@@ -47,6 +54,7 @@ public class VideoService {
         dto.setId(video.getId());
         dto.setTitle(video.getTitle());
         dto.setYoutubeUrl(video.getYoutubeUrl());
+        dto.setUploadedDate(video.getUploadedDate());
 
         // Asignar el username si el usuario no es nulo
         if (video.getUploadedBy() != null) {
@@ -58,11 +66,40 @@ public class VideoService {
         return dto;
     }
 
-    // Get all videos
-    public List<VideoDto> getAllVideos() {
-        List<Video> videos = videoRepository.findAll();
-        return videos.stream()
-                .map(this::convertToDto)  // Convert each Video entity to a VideoDto
+    // Get all videos with pagination and sorting
+    public List<VideoDto> getAllVideos(int page, int size, String sortOrder) {
+        Sort.Direction direction = "asc".equalsIgnoreCase(sortOrder) ? Sort.Direction.ASC : Sort.Direction.DESC;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, "uploadedDate"));
+        Page<Video> videosPage = videoRepository.findAll(pageable);
+        return videosPage.stream()
+                .map(this::convertToDto)
                 .toList();
     }
+    
+    @Transactional
+    public VideoDto editVideo(Long id, VideoCreateRequest videoRequest) {
+        Video video = videoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Video no encontrado"));
+        video.setTitle(videoRequest.getTitle());
+        video.setYoutubeUrl(videoRequest.getYoutubeUrl());
+        video.setPublicationDate(videoRequest.getPublicationDate());
+        
+        Video updatedVideo = videoRepository.save(video);
+        return convertToDto(updatedVideo);
+    }
+
+    // Delete video
+    @Transactional
+    public void deleteVideo(Long id) {
+        Video video = videoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Video no encontrado"));
+        videoRepository.delete(video);
+    }
+    // Get video by ID
+    public VideoDto getVideoById(Long id) {
+        Video video = videoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Video no encontrado"));
+        return convertToDto(video);
+    }
+    
 }

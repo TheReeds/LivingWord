@@ -56,10 +56,10 @@ public class AttendanceService {
 
         attendanceRepository.save(attendance);
 
-        if (!attended) {
+        /*if (!attended) {
             // Notificar a los administradores sobre la ausencia
             notificationService.notifyAdminAbsence(user, activeSermon);
-        }
+        }*/
     }
 
     // Obtener registros de asistencia de un usuario

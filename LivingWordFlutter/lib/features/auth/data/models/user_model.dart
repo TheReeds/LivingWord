@@ -30,4 +30,6 @@ class UserModel {
       token: json['token'] ?? '',
     );
   }
+
+  get profileImageUrl => null;
 }

@@ -13,6 +13,7 @@ public class EventDto {
     private Long id;
     private String title;
     private String description;
+    private String imageUrl;
     private LocalDateTime eventDate;
     private String createdByUsername;
 }

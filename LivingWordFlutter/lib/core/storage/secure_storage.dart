@@ -14,4 +14,16 @@
     static Future<void> deleteToken() async {
       await _storage.delete(key: 'auth_token');
     }
+    static Future<void> saveDeviceToken(String token) async {
+      await _storage.write(key: 'device_token', value: token);
+    }
+
+    static Future<String?> getDeviceToken() async {
+      return await _storage.read(key: 'device_token');
+    }
+
+    static Future<void> deleteDeviceToken() async {
+      await _storage.delete(key: 'device_token');
+    }
+
   }

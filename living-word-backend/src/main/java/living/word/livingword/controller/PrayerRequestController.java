@@ -24,7 +24,7 @@ public class PrayerRequestController {
 
     // Crear pedido de oración
     @PostMapping("/create")
-    @PreAuthorize("hasAuthority('PERM_PRAYER_WRITE') or hasAuthority('PERM_ADMIN_ACCESS')")
+    @PreAuthorize("hasAuthority('PERM_PRAYER_READ') or hasAuthority('PERM_ADMIN_ACCESS')")
     public ResponseEntity<?> createPrayerRequest(@RequestBody String description) {
         PrayerRequestDTO prayerRequest = prayerRequestService.createPrayerRequest(description);
         return new ResponseEntity<>(prayerRequest, HttpStatus.CREATED);
@@ -32,7 +32,7 @@ public class PrayerRequestController {
 
     // Orar por un pedido
     @PostMapping("/{id}/support")
-    @PreAuthorize("hasAuthority('PERM_PRAYER_WRITE') or hasAuthority('PERM_ADMIN_ACCESS')")
+    @PreAuthorize("hasAuthority('PERM_PRAYER_READ') or hasAuthority('PERM_ADMIN_ACCESS')")
     public ResponseEntity<?> supportPrayer(@PathVariable Long id) {
         prayerRequestService.supportPrayer(id);
         return new ResponseEntity<>(HttpStatus.OK);

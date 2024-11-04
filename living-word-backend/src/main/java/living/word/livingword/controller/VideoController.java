@@ -11,7 +11,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
 @RestController
 @RequestMapping("/videos")
 public class VideoController {
@@ -21,7 +20,7 @@ public class VideoController {
 
     // Add a new video link
     @PostMapping("/add")
-    @PreAuthorize("hasAuthority('PERM_VIDEO_WRITE') or hasAuthority('PERM_ADMIN_ACCESS')")
+    @PreAuthorize("hasAnyAuthority('PERM_VIDEO_WRITE', 'PERM_ADMIN_ACCESS')")
     public ResponseEntity<?> addVideo(@Valid @RequestBody VideoCreateRequest videoRequest) {
         try {
             VideoDto savedVideo = videoService.addVideo(videoRequest);
@@ -31,11 +30,38 @@ public class VideoController {
         }
     }
 
-    // Get all videos
-    @GetMapping
-    @PreAuthorize("hasAuthority('PERM_VIDEO_READ') or hasAuthority('PERM_ADMIN_ACCESS')")
-    public ResponseEntity<List<VideoDto>> getAllVideos() {
-        List<VideoDto> videos = videoService.getAllVideos();
-        return new ResponseEntity<>(videos, HttpStatus.OK);
+    // Get video by ID
+    @GetMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('PERM_VIDEO_READ', 'PERM_ADMIN_ACCESS')")
+    public ResponseEntity<VideoDto> getVideoById(@PathVariable Long id) {
+        VideoDto video = videoService.getVideoById(id);
+        return new ResponseEntity<>(video, HttpStatus.OK);
     }
+
+    // Edit video
+    @PutMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('PERM_VIDEO_EDIT', 'PERM_ADMIN_ACCESS')")
+    public ResponseEntity<VideoDto> editVideo(@PathVariable Long id, @Valid @RequestBody VideoCreateRequest videoRequest) {
+        VideoDto updatedVideo = videoService.editVideo(id, videoRequest);
+        return new ResponseEntity<>(updatedVideo, HttpStatus.OK);
+    }
+
+    // Delete video
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('PERM_VIDEO_DELETE', 'PERM_ADMIN_ACCESS')")
+    public ResponseEntity<Void> deleteVideo(@PathVariable Long id) {
+        videoService.deleteVideo(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    // Get all videos with pagination and sorting
+    @GetMapping
+    @PreAuthorize("hasAnyAuthority('PERM_VIDEO_READ', 'PERM_ADMIN_ACCESS')")
+    public ResponseEntity<List<VideoDto>> getAllVideos(
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size,
+        @RequestParam(defaultValue = "desc") String sortOrder) { // Parámetro para el orden
+    List<VideoDto> videos = videoService.getAllVideos(page, size, sortOrder);
+    return new ResponseEntity<>(videos, HttpStatus.OK);
+}
 }

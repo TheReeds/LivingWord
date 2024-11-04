@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../../providers/contacts_provider.dart';
 import '../../../auth/providers/auth_provider.dart';
 import '../widgets/contact_card.dart';

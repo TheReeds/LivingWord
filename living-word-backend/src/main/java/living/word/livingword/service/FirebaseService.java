@@ -1,74 +1,86 @@
 package living.word.livingword.service;
-import com.google.auth.oauth2.GoogleCredentials;
-import com.google.firebase.FirebaseApp;
-import com.google.firebase.FirebaseOptions;
-import com.google.firebase.messaging.*;
-import jakarta.annotation.PostConstruct;
-import living.word.livingword.entity.User;
-import living.word.livingword.entity.Event;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.google.firebase.messaging.BatchResponse;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.FirebaseMessagingException;
+import com.google.firebase.messaging.MessagingErrorCode;
+import com.google.firebase.messaging.MulticastMessage;
+import com.google.firebase.messaging.Notification;
+import com.google.firebase.messaging.SendResponse;
+
+import living.word.livingword.entity.DeviceToken;
+import living.word.livingword.repository.DeviceTokenRepository;
+import lombok.extern.slf4j.Slf4j;
+
 @Service
+@Slf4j
 public class FirebaseService {
+    private final DeviceTokenRepository deviceTokenRepository;
 
-    @Value("${firebase.config.path}")
-    private String firebaseConfigPath;
+    @Autowired
+    public FirebaseService(DeviceTokenRepository deviceTokenRepository) {
+        this.deviceTokenRepository = deviceTokenRepository;
+    }
 
-    @PostConstruct
-    public void initialize() {
+    public BatchResponse sendNotificationToAllUsers(String title, String body, Map<String, String> data, String imageUrl) {
+        List<String> tokens = deviceTokenRepository.findAll().stream()
+                .map(DeviceToken::getToken)
+                .collect(Collectors.toList());
+    
+        if (tokens.isEmpty()) {
+            log.warn("No device tokens found for notification");
+            return null;
+        }
+    
+        // Directly pass parameters to sendMulticastNotification
+        return sendMulticastNotification(tokens, title, body, data, imageUrl);
+    }    
+
+    public BatchResponse sendMulticastNotification(List<String> tokens, String title, String body, Map<String, String> data, String imageUrl) {
         try {
-            FileInputStream serviceAccount = new FileInputStream(firebaseConfigPath);
-
-            FirebaseOptions options = FirebaseOptions.builder()
-                    .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+            MulticastMessage message = MulticastMessage.builder()
+                    .setNotification(Notification.builder()
+                            .setTitle(title)
+                            .setBody(body)
+                            .setImage(imageUrl)
+                            .build())
+                    .putAllData(data != null ? data : new HashMap<>())
+                    .addAllTokens(tokens)
                     .build();
 
-            if (FirebaseApp.getApps().isEmpty()) {
-                FirebaseApp.initializeApp(options);
-            }
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to initialize Firebase", e);
-        }
-    }
-
-    // Enviar notificación a una lista de usuarios
-    public void sendNotificationToUsers(List<User> users, String title, String body) {
-        for(User user : users){
-            sendNotification(user.getDeviceTokens().stream().map(dt -> dt.getToken()).collect(Collectors.toList()), title, body);
-        }
-    }
-
-    // Enviar notificación a una lista de tokens
-    public void sendNotification(List<String> tokens, String title, String body) {
-        if(tokens.isEmpty()) return;
-
-        Notification notification = Notification.builder()
-                .setTitle(title)
-                .setBody(body)
-                .build();
-
-        MulticastMessage message = MulticastMessage.builder()
-                .addAllTokens(tokens)
-                .setNotification(notification)
-                .build();
-
-        try {
-            BatchResponse response = FirebaseMessaging.getInstance().sendMulticast(message);
-            System.out.println("Successfully sent message: " + response.getSuccessCount());
+            BatchResponse response = FirebaseMessaging.getInstance().sendEachForMulticast(message);
+            log.info("Successfully sent message to {} recipients", response.getSuccessCount());
+            
+            handleFailedTokens(tokens, response.getResponses());
+                
+            return response;
         } catch (FirebaseMessagingException e) {
-            e.printStackTrace();
+            log.error("Error sending Firebase notification", e);
+            throw new RuntimeException("Error sending Firebase notification", e);
         }
     }
 
-    // Enviar notificación para un evento específico
-    public void notifyUsersOfEvent(Event event) {
-        List<User> ministryUsers = event.getMinistry().getUsers(); // Asegúrate de que la relación esté cargada
-        sendNotificationToUsers(ministryUsers, "Nuevo Evento: " + event.getTitle(), event.getDescription());
+    private void handleFailedTokens(List<String> tokens, List<SendResponse> responses) {
+        for (int i = 0; i < responses.size(); i++) {
+            if (!responses.get(i).isSuccessful()) {
+                String failedToken = tokens.get(i);
+                MessagingErrorCode errorCode = responses.get(i).getException().getMessagingErrorCode();
+                
+                if (errorCode == MessagingErrorCode.UNREGISTERED || 
+                    errorCode == MessagingErrorCode.INVALID_ARGUMENT) {
+                    log.warn("Removing invalid token: {}", failedToken);
+                    deviceTokenRepository.findByToken(failedToken)
+                            .ifPresent(deviceTokenRepository::delete);
+                }
+            }
+        }
     }
 }
