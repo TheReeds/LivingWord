@@ -34,15 +34,14 @@ public class FirebaseService {
         List<String> tokens = deviceTokenRepository.findAll().stream()
                 .map(DeviceToken::getToken)
                 .collect(Collectors.toList());
-    
+
         if (tokens.isEmpty()) {
             log.warn("No device tokens found for notification");
             return null;
         }
-    
-        // Directly pass parameters to sendMulticastNotification
+
         return sendMulticastNotification(tokens, title, body, data, imageUrl);
-    }    
+    }
 
     public BatchResponse sendMulticastNotification(List<String> tokens, String title, String body, Map<String, String> data, String imageUrl) {
         try {
@@ -56,11 +55,16 @@ public class FirebaseService {
                     .addAllTokens(tokens)
                     .build();
 
+            log.info("Sending notification to the following tokens: {}", tokens);
+
             BatchResponse response = FirebaseMessaging.getInstance().sendEachForMulticast(message);
             log.info("Successfully sent message to {} recipients", response.getSuccessCount());
-            
+
             handleFailedTokens(tokens, response.getResponses());
-                
+
+            // Log details of each successful and failed token
+            logTokenStatuses(tokens, response.getResponses());
+
             return response;
         } catch (FirebaseMessagingException e) {
             log.error("Error sending Firebase notification", e);
@@ -73,13 +77,30 @@ public class FirebaseService {
             if (!responses.get(i).isSuccessful()) {
                 String failedToken = tokens.get(i);
                 MessagingErrorCode errorCode = responses.get(i).getException().getMessagingErrorCode();
-                
+
                 if (errorCode == MessagingErrorCode.UNREGISTERED || 
                     errorCode == MessagingErrorCode.INVALID_ARGUMENT) {
-                    log.warn("Removing invalid token: {}", failedToken);
+                    log.warn("Removing invalid or inactive token: {}", failedToken);
                     deviceTokenRepository.findByToken(failedToken)
                             .ifPresent(deviceTokenRepository::delete);
                 }
+            }
+        }
+    }
+
+    private void logTokenStatuses(List<String> tokens, List<SendResponse> responses) {
+        for (int i = 0; i < responses.size(); i++) {
+            String token = tokens.get(i);
+            SendResponse response = responses.get(i);
+
+            if (response.isSuccessful()) {
+                log.info("Successfully sent notification to token: {}", token);
+            } else {
+                MessagingErrorCode errorCode = response.getException().getMessagingErrorCode();
+                String errorMessage = response.getException().getMessage();
+
+                log.error("Failed to send notification to token: {}. Error Code: {}, Message: {}", 
+                          token, errorCode, errorMessage);
             }
         }
     }

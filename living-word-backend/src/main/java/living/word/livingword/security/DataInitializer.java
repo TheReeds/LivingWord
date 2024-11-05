@@ -92,6 +92,9 @@ public class DataInitializer implements CommandLineRunner {
             User admin = new User();
             admin.setName("Administrador");
             admin.setEmail(adminEmail);
+            admin.setVerified(true);
+            admin.setGender("male");
+            admin.setLastname("Engage");
             admin.setPassword(passwordEncoder.encode("admin12345")); // **Cambiar a una contraseña segura**
             Role adminRole = roleService.getRoleByName("ADMINISTRATOR")
                     .orElseThrow(() -> new IllegalStateException("ADMINISTRATOR role not found"));

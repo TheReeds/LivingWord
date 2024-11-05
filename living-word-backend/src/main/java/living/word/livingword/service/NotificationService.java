@@ -35,7 +35,7 @@ public class NotificationService {
     public void sendNewsletterNotification(Newsletter newsletter) {
         String title = "New newsletter available";
         String body = newsletter.getTitle();
-        String imageUrl = "https://marketing4ecommerce.net/wp-content/uploads/2016/01/marketing4ecommerce-241.jpg";
+        String imageUrl = "https://literalni.com/wp-content/uploads/2021/09/Boletin2-Literal-.jpg";
 
         Map<String, String> data = new HashMap<>();
         data.put("type", "newsletter");

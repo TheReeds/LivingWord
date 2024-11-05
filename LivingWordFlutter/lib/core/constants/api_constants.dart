@@ -22,6 +22,7 @@ class ApiConstants {
     }*/
     // Default fallback
     return 'http://$deviceIp:6500';
+    //return 'https://livingwordbackend-production.up.railway.app';
   }
   static const String loginEndpoint = '/auth/login';
   static const String signupEndpoint = '/auth/signup';
