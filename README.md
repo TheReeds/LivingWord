@@ -83,6 +83,20 @@ La aplicación integra servicios modernos como notificaciones push y envíos de 
 
 ---
 
+## Imágenes de la App
+
+A continuación, se presentan capturas de pantalla de la aplicación funcionando:
+
+### Vista de Inicio
+![Vista de Login](assets/images/login_screen.jpg)
+
+### Vista de Eventos
+![Vista de Eventos](assets/images/events_screen.jpg)
+
+### Vista de Estadísticas
+![Vista de Gestión de Ministerios](assets/images/ministerios_screen.jpg)
+
+
 ## Tecnologías utilizadas
 
 ### Frontend
