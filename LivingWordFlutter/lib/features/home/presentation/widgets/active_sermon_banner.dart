@@ -1,27 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+
+import '../../data/models/event/sermon_model.dart';
 
 class ActiveSermonBanner extends StatelessWidget {
-  final bool isActive;
-  final String title;
-  final String time;
-  final String date;
+  final SermonModel sermon;
 
   const ActiveSermonBanner({
     Key? key,
-    required this.isActive,
-    required this.title,
-    required this.time,
-    required this.date,
+    required this.sermon,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final timeFormat = DateFormat('hh:mm a');
+    final dateFormat = DateFormat('dd MMM, yyyy');
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: isActive
+          colors: sermon.active
               ? [Colors.blue.shade700, Colors.blue.shade500]
               : [Colors.grey.shade700, Colors.grey.shade500],
         ),
@@ -42,11 +42,11 @@ class ActiveSermonBanner extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: isActive ? Colors.green : Colors.grey,
+                  color: sermon.active ? Colors.green : Colors.grey,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
-                    isActive ? 'OPEN' : 'CLOSE',
+                  sermon.active ? 'ACTIVE' : 'INACTIVE',
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 12,
@@ -56,7 +56,7 @@ class ActiveSermonBanner extends StatelessWidget {
               ),
               const Spacer(),
               Icon(
-                isActive ? Icons.church : Icons.church_outlined,
+                sermon.active ? Icons.church : Icons.church_outlined,
                 color: Colors.white,
                 size: 24,
               ),
@@ -64,12 +64,24 @@ class ActiveSermonBanner extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Text(
-            title,
+            sermon.title,
             style: const TextStyle(
               color: Colors.white,
               fontSize: 20,
               fontWeight: FontWeight.bold,
             ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            sermon.description,
+            style: const TextStyle(
+              color: Colors.white70,
+              fontSize: 14,
+            ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 8),
           Row(
@@ -81,7 +93,7 @@ class ActiveSermonBanner extends StatelessWidget {
               ),
               const SizedBox(width: 4),
               Text(
-                time,
+                timeFormat.format(sermon.startTime),
                 style: const TextStyle(
                   color: Colors.white70,
                   fontSize: 14,
@@ -95,7 +107,7 @@ class ActiveSermonBanner extends StatelessWidget {
               ),
               const SizedBox(width: 4),
               Text(
-                date,
+                dateFormat.format(sermon.startTime),
                 style: const TextStyle(
                   color: Colors.white70,
                   fontSize: 14,

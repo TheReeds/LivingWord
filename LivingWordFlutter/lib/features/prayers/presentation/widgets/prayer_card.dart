@@ -157,7 +157,7 @@ class PrayerCard extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              prayer.username,
+                              '${prayer.username ?? 'Username'} ${prayer.lastname ?? 'UserLastName'}',
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,

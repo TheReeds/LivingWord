@@ -4,6 +4,7 @@ class PrayerRequest {
   final DateTime date;
   final int prayerCount;
   final String username;
+  final String lastname;
 
   PrayerRequest({
     required this.id,
@@ -11,6 +12,7 @@ class PrayerRequest {
     required this.date,
     required this.prayerCount,
     required this.username,
+    required this.lastname,
   });
 
   factory PrayerRequest.fromJson(Map<String, dynamic> json) {
@@ -20,6 +22,7 @@ class PrayerRequest {
       date: DateTime.parse(json['date']),
       prayerCount: json['prayerCount'] ?? 0,
       username: json['username'] ?? '',
+      lastname: json['lastname'] ?? '',
     );
   }
 }

@@ -15,6 +15,8 @@ import com.google.firebase.messaging.MessagingErrorCode;
 import com.google.firebase.messaging.MulticastMessage;
 import com.google.firebase.messaging.Notification;
 import com.google.firebase.messaging.SendResponse;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import living.word.livingword.entity.DeviceToken;
 import living.word.livingword.repository.DeviceTokenRepository;
@@ -24,6 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class FirebaseService {
     private final DeviceTokenRepository deviceTokenRepository;
+    private final ExecutorService executorService = Executors.newFixedThreadPool(10);
 
     @Autowired
     public FirebaseService(DeviceTokenRepository deviceTokenRepository) {
@@ -40,7 +43,20 @@ public class FirebaseService {
             return null;
         }
 
-        return sendMulticastNotification(tokens, title, body, data, imageUrl);
+        // Enviar notificaciones en lotes
+        int batchSize = 500; // Tamaño del lote
+        BatchResponse finalResponse = null;
+        for (int i = 0; i < tokens.size(); i += batchSize) {
+            int end = Math.min(i + batchSize, tokens.size());
+            List<String> batchTokens = tokens.subList(i, end);
+            BatchResponse response = sendMulticastNotification(batchTokens, title, body, data, imageUrl);
+            if (finalResponse == null) {
+                finalResponse = response;
+            } else {
+                // Combinar respuestas si es necesario
+            }
+        }
+        return finalResponse;
     }
 
     public BatchResponse sendMulticastNotification(List<String> tokens, String title, String body, Map<String, String> data, String imageUrl) {

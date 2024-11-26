@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../providers/sermon_provider.dart';
 import '../widgets/active_sermon_banner.dart';
 import '../widgets/dashboard_option_card.dart';
 
@@ -14,19 +16,13 @@ class DashboardScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Banner de sermón destacado
-            const ActiveSermonBanner(
-              isActive: true,
-              title: "God our Shepherd",
-              time: "10:00 AM",
-              date: "28 Oct, 2024",
-            ),
+            const DashboardSermonSection(),
             const SizedBox(height: 32),
             // Título de recursos
             Text(
               'Resources',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.onBackground,
               ),
             ),
             const SizedBox(height: 20),
@@ -96,4 +92,36 @@ class DashboardScreen extends StatelessWidget {
       'gradientColors': [Color(0xFFFF6B6B), Color(0xFFFF9F9F)],
     },
   ];
+}
+class DashboardSermonSection extends StatelessWidget {
+  const DashboardSermonSection({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<SermonProvider>(
+      builder: (context, provider, child) {
+        if (provider.isLoading) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        if (provider.error != null) {
+          return Center(
+            child: Text(
+              'Error loading sermon: ${provider.error}',
+              style: const TextStyle(color: Colors.red),
+            ),
+          );
+        }
+
+        final activeSermon = provider.activeSermon;
+        if (activeSermon == null) {
+          return const Center(
+            child: Text('No sermon available'),
+          );
+        }
+
+        return ActiveSermonBanner(sermon: activeSermon);
+      },
+    );
+  }
 }

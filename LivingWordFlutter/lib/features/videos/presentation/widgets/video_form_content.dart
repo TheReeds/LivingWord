@@ -47,7 +47,7 @@ class _VideoFormContentState extends State<VideoFormContent> {
 
       if (widget.isEditing) {
         await videosProvider.updateVideo(
-          widget.video!.id!,
+          widget.video!.id as int,
           _titleController.text,
           _urlController.text,
         );

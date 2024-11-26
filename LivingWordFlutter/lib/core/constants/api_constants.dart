@@ -3,7 +3,8 @@ import 'package:flutter/foundation.dart';
 class ApiConstants {
   static String get baseUrl {
     // Si estás usando un dispositivo físico, reemplaza esta IP con la de tu computadora
-    const String deviceIp = '192.168.100.157'; // Cambia esta IP por la de tu máquina
+    const String deviceIp = '10.80.82.138'; // Cambia esta IP por la de tu máquina
+
 
     /*if (defaultTargetPlatform == TargetPlatform.android) {
       if (!kReleaseMode) {
@@ -24,8 +25,14 @@ class ApiConstants {
     return 'http://$deviceIp:6500';
     //return 'https://livingwordbackend-production.up.railway.app';
   }
+  //Get images
+  static String eventImageUrl(String imageName) => '$baseUrl/events/images/$imageName';
+  static String profileImageUrl(String imageName) => '$baseUrl/users/profileImage/$imageName';
+  //Endpoints
   static const String loginEndpoint = '/auth/login';
   static const String signupEndpoint = '/auth/signup';
   static const String newslettersEndpoint = '/newsletters';
   static String newsletterByIdEndpoint(int id) => '/newsletters/$id';
+  static const String usersEndpoint = '/users';
+  static const String eventsEndpoint = '/events';
 }

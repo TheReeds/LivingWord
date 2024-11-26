@@ -2,22 +2,36 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:living_word/core/services/firebase_messaging_service.dart';
 import 'package:living_word/features/auth/presentation/screens/signup_screen.dart';
+import 'package:living_word/features/home/data/repositories/sermon_repository.dart';
+import 'package:living_word/features/home/providers/ministry_statistics_provider.dart';
+import 'package:living_word/features/home/providers/ministry_survey_provider.dart';
+import 'package:living_word/features/home/providers/sermon_provider.dart';
 import 'package:living_word/features/sermonnotes/presentation/screens/sermon_notes_screen.dart';
 import 'package:living_word/features/sermonnotes/providers/sermon_notes_provider.dart';
+import 'package:living_word/theme_provider.dart';
 import 'package:provider/provider.dart';
 
 import 'features/auth/data/repositories/auth_repository.dart';
 import 'features/contacts/presentation/screens/contacts_screen.dart';
 import 'features/contacts/providers/contacts_provider.dart';
+import 'features/home/data/repositories/events_repository.dart';
+import 'features/home/data/repositories/ministry_repository.dart';
+import 'features/home/data/repositories/ministry_survey_repository.dart';
 import 'features/home/presentation/screens/home_screen.dart';
 import 'features/auth/presentation/screens/login_screen.dart';
 import 'features/auth/providers/auth_provider.dart';
+import 'features/home/providers/events_provider.dart';
+import 'features/home/providers/ministry_provider.dart';
 import 'features/home/providers/navigation_provider.dart';
 import 'features/newsletters/presentation/screens/newsletters_screen.dart';
 import 'features/newsletters/providers/newsletters_provider.dart';
 import 'features/prayers/data/repositories/prayer_repository.dart';
 import 'features/prayers/presentation/screens/prayer_list_screen.dart';
 import 'features/prayers/providers/prayer_provider.dart';
+import 'features/profile/data/repositories/profile_repository.dart';
+import 'features/profile/providers/profile_provider.dart';
+import 'features/users/data/repositories/user_management_repository.dart';
+import 'features/users/providers/user_management_provider.dart';
 import 'features/videos/data/repositories/videos_repository.dart';
 import 'features/videos/presentation/screens/videos_screen.dart';
 import 'features/videos/providers/videos_provider.dart';
@@ -35,6 +49,8 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (_) => MinistrySurveyProvider(MinistrySurveyRepository())),
+        ChangeNotifierProvider(create: (_) => MinistryStatisticsProvider(MinistrySurveyRepository())),
         ChangeNotifierProvider(create: (_) => AuthProvider(AuthRepository())),
         ChangeNotifierProvider(create: (_) => NavigationProvider()),
         ChangeNotifierProvider(create: (_) => ContactsProvider()),
@@ -42,6 +58,14 @@ void main() async {
         ChangeNotifierProvider(create: (_) => PrayerProvider(PrayerRepository())),
         ChangeNotifierProvider(create: (_) => SermonNotesProvider()),
         ChangeNotifierProvider(create: (_) => NewslettersProvider()),
+        ChangeNotifierProvider(create: (_) => SermonProvider(SermonRepository())),
+        ChangeNotifierProvider(create: (_) => ProfileProvider(ProfileRepository())),
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ChangeNotifierProvider(create: (_) => UserManagementProvider(UserManagementRepository())),
+        ChangeNotifierProvider(create: (_) => MinistryProvider(MinistryRepository())),
+        ChangeNotifierProvider(create: (_) => EventsProvider(EventsRepository())),
+
+
       ],
       child: const MyApp(),
     ),
@@ -57,13 +81,26 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Determina la ruta inicial según el estado de autenticación
+    final themeProvider = Provider.of<ThemeProvider>(context);
     final initialRoute = context.watch<AuthProvider>().isAuthenticated ? '/home' : '/login';
 
     return MaterialApp(
       title: 'Living Word App',
+      themeMode: themeProvider.themeMode,
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primaryColor: Colors.green,
+        colorScheme: ColorScheme.fromSwatch(
+          primarySwatch: Colors.blue,
+        ).copyWith(
+          primary: Colors.blue,
+        ),
+        useMaterial3: true,
+      ),
+      darkTheme: ThemeData.dark().copyWith(
+        primaryColor: Colors.green,
+        colorScheme: ColorScheme.dark().copyWith(
+          primary: Colors.blue,
+        ),
         useMaterial3: true,
       ),
       initialRoute: initialRoute,
